@@ -18,7 +18,8 @@ function rho = ComputeRho(A,B,K,K_part,s)
         SumNorm = SumNorm + OptCvx(l)*norm(Al(:,:,l));
     end
 
-    rho_prev = 1; rho_curr = log(2)/SumNorm; CheckStability = 1;
+    rho_prev = 1; rho_curr = 0.5; %rho_curr = log(2)/SumNorm; 
+    CheckStability = 1;
     % Check if the periodic switching is stable with rho_curr
     while CheckStability
         Phi_Rho = eye(n);
@@ -26,7 +27,7 @@ function rho = ComputeRho(A,B,K,K_part,s)
         for l=1:L
             Phi_Rho = expm(Al(:,:,l)*OptCvx(l)*rho_curr)*Phi_Rho;
         end
-        isStable = norm(Phi_Rho) < 1;
+        isStable = norm(eigs(Phi_Rho,1)) < 1;
         isFiner = (abs(rho_prev - rho_curr) < tol);
         CheckStability = (~isStable) || (~isFiner);
         if CheckStability

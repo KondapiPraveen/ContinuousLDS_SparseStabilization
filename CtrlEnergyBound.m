@@ -56,13 +56,14 @@ function CtrlEnergyBound(K,K_part,S)
 
     % Plotting
     figure();
-    Labels=["$\bs{alpha}^*, \mathcal{S}^*$","$\bs{alpha}^*, \mathcal{S}$","$\bs{alpha}, \mathcal{S}^*$","$\bs{alpha}, \mathcal{S}$"];
+    Labels=["$\bf{\alpha}^*, \mathcal{S}^*$","$\bf{\alpha}^*, \mathcal{S}$","$\bf{\alpha}, \mathcal{S}^*$","$\bf{\alpha}, \mathcal{S}$"];
     Markers = {'s','d','o','+','x','*','^','v'}; % For plotting
-    for i=1:lenS
+    for i=1:4
         plot(S,EngBnd(i,:),'DisplayName',Labels(i),'Marker',Markers(i),'MarkerSize',10,'LineWidth',2.5); hold on;
     end
-    plot(S,UppBnd,'DisplayName','Upper bound for $\bs{alpha}^*, \mathcal{S}^*$','ko-.','MarkerSize',10,'LineWidth',2.5); hold off
-    legend('Interpreter','latex','NumColumns',2);
-    ylabel("Sparsity ($s$)",'Interpreter','latex')
-    xlabel("Max Sq. Frob. Norm $\max_l ||K_l||_F^2$",'Interpreter','latex');
+    str = "Upper bound for $\bf{\alpha}^*, \mathcal{S}^*$";
+    plot(S,UppBnd,'ko-.','MarkerSize',10,'LineWidth',2.5,DisplayName=str); hold off
+    legend('Interpreter','latex','NumColumns',2,'FontSize',16);
+    xlabel("Sparsity ($s$)",'Interpreter','latex','FontSize',16)
+    ylabel("Max Sq. Frob. Norm $\max_l \Vert \bf{K}_l \Vert_F^2$",'Interpreter','latex','FontSize',15);
 end

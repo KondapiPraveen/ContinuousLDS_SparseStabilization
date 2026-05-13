@@ -23,7 +23,7 @@ Outputs:
     Table 1: Lower min inter event time for various s
 %}
 
-function StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
+function tmin = StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
     % Initialization
     Q = ((A+B*K).')*P + P*(A+B*K); c4 = eigs(-Q,1,'smallestabs');
     lenS = numel(S); n = size(A,1); m = size(B,2); meff = numel(K_part);
@@ -146,8 +146,8 @@ function StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
         end
         % Plotting : |x(t)| vs t for various 's'
         semilogy(tl{i}(1:cntr-1),xl{i}(1:cntr-1),'LineWidth',2.5,'Marker',Markers{i},'MarkerSize',10);
-        grid on; hold on;
-        xlabel('$time (t)$','Interpreter','latex'); ylabel('$V(t)$','Interpreter','latex');
-        legend(strcat('$s = $',num2str(S.')),'interpreter','latex');
+        hold on;
     end
+    xlabel('$time (t)$','Interpreter','latex','FontSize',16); ylabel('$V(t)$','Interpreter','latex','FontSize',16);
+    legend(strcat('$s = $',num2str(S.')),'interpreter','latex','FontSize',16,'NumColumns',2); grid on;
 end

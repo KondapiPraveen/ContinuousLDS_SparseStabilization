@@ -2,9 +2,10 @@
 % Find out optimal cvx combination and optimal partition
 function [Kl, OptCvx] = OptimalFeedback(K,K_part,s)
     meff = numel(K_part); L = ceil(meff/s);
-    m = size(K,1); n = size(2);
-    Kl = zeros(m,n,L); OptCvx = zeros(L);
+    m = size(K,1); n = size(K,2);
+    Kl = zeros(m,n,L); OptCvx = zeros(L,1);
     CONST = 0; % Find the optimal combination constant
+    K_row_l2 = vecnorm(K,2,2).^2; % Compute l2 norm of each row of K
     
     for l=1:L
         Sl = K_part((l-1)*s+1:min(l*s,meff));
@@ -21,4 +22,5 @@ function [Kl, OptCvx] = OptimalFeedback(K,K_part,s)
         K_eff = OptCvx(l)*K_eff;
         Kl(:,:,l) = K_eff;
     end
+    OptCvx = 1./OptCvx;
 end
