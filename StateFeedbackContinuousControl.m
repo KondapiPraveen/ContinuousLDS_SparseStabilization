@@ -158,6 +158,6 @@ function [tmin,Kl,ul,tl,xl,cntr] = StateFeedbackContinuousControl(A,B,K,P,x0,K_p
         hold on;
     end
     semilogy(tx,UppBnd,'k--o','LineWidth',2.5,'MarkerSize',10,'MarkerIndices',1:2:20); hold on
-    xlabel('$time (t)$','Interpreter','latex','FontSize',16); ylabel('$V(t)$','Interpreter','latex','FontSize',16);
+    xlabel('time $(t)$','Interpreter','latex','FontSize',16); ylabel('$V(t)$','Interpreter','latex','FontSize',16);
     legend([strcat('$s = $',num2str(S.'));"Upper Bound"],'interpreter','latex','FontSize',16,'NumColumns',2); grid on;
 end

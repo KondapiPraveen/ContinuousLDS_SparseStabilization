@@ -118,7 +118,7 @@ S = union(1,2:m/5:4*m/5); % Sparsity levels
 beta = 0.5; % Decay factor such that inter-event time > 0
 tminSST = ComputeSTCLowerBnd(A,B,K,P,K_part,Q0,S,beta);
 tic;
-%% Simulation
+% Simulation
 tic;
 x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
 tmax = 10; % 10sec of simulation time

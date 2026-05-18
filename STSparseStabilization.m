@@ -104,6 +104,6 @@ function STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax)
     str = sprintf('Upper Bound');
     semilogy(tx,UppBnd,'k--o','DisplayName',str,'MarkerSize',10,'LineWidth',2.5); hold on;
     legend('NumColumns',2,'Interpreter','latex','FontSize',16); grid on;
-    xlabel('time (s)','Interpreter','latex','FontSize',16); ylabel('$V(t)$','Interpreter','latex','FontSize',16);
+    xlabel('time $(t)$','Interpreter','latex','FontSize',16); ylabel('$V(t)$','Interpreter','latex','FontSize',16);
     title('Self Triggered State Feedback')
 end

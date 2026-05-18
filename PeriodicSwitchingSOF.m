@@ -104,11 +104,11 @@ function rhoS = PeriodicSwitchingSOF(A,B,C,F,K_part,x0,S,b,tmax)
         hold on
     end
     figure(fig1)
-    legend('NumColumns',2,'Interpreter','latex','FontSize',16); 
-    xlabel('time (s)','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
+    legend('NumColumns',2,'Interpreter','latex','FontSize',16); grid on
+    xlabel('time $(t)$','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
     title('Noiseless SOF')
     figure(fig2)
-    legend('NumColumns',2,'Interpreter','latex','FontSize',16);
-    xlabel('time (s)','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
+    legend('NumColumns',2,'Interpreter','latex','FontSize',16); grid on
+    xlabel('time $(t)$','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
     title('Robust SOF')
 end

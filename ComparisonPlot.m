@@ -116,7 +116,7 @@ figure
 yyaxis left
 str = "$s = 1$";
 semilogy(toptl{1}(1:counter-1),xoptl{1}(1:counter-1),"DisplayName","Ours",'LineWidth',2.5,'Marker','s','MarkerSize',10);
-xlabel('$time (t)$','Interpreter','latex','FontSize',16); ylabel('$\Vert \bf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
+xlabel('time $(t)$','Interpreter','latex','FontSize',16); ylabel('$\Vert \bf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
 %legend('interpreter','latex','FontSize',16,'NumColumns',2);
 % plot for energy
 yyaxis right

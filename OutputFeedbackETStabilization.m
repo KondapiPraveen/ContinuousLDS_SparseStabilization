@@ -190,7 +190,7 @@ function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta
     figure(fig1)
     semilogy(tx,UppBnd,'k--o','DisplayName',"Upper Bound",'MarkerSize',10,'LineWidth',2.5); grid on; hold off
     legend('NumColumns',2,'Interpreter','latex','FontSize',16); 
-    xlabel('time (s)','Interpreter','latex','FontSize',16); %ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
+    xlabel('time $(t)$','Interpreter','latex','FontSize',16); %ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
     %ylabel('$\Vert \psi(t) \Vert^2$','Interpreter','latex','FontSize',16);
     ylabel('$V(t)$','Interpreter','latex','FontSize',16);
     title('Noiseless Dynamic Feedback')

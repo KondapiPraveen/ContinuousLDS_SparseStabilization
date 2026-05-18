@@ -108,14 +108,14 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
     figure(fig1);
     %semilogy(tx,UppBnd1,'k--o','DisplayName',"Upper Bound",'LineWidth',2.5); grid on;
     legend('NumColumns',2,'Interpreter','latex','FontSize',16); 
-    xlabel('time (s)','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
-    title('Noiseless Dynamic Feedback')
+    xlabel('time $(t)$','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
+    title('Noiseless Dynamic Feedback'); grid on
     % Upper Bound for bounded noise
     %NoiseBnd = 2*b*n + norm(F)*b*p; % Upper Bound for NoiseNow
     %UppBnd2 = (sqrt(beta1)*(kappa1^2)*exp(-alpha1*tx/2) + 2*NoiseBnd*sqrt(beta1)*(kappa1^2)*(1-exp(-alpha1*tx/2))/alpha1).^2;
     figure(fig2)
     %semilogy(tx,UppBnd2,'k--o','DisplayName',"Upper Bound",'LineWidth',2.5); grid on;
     legend('NumColumns',2,'Interpreter','latex','FontSize',16);
-    xlabel('time (s)','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
-    title('Robust Dynamic Feedback')
+    xlabel('time $(t)$','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
+    title('Robust Dynamic Feedback'); grid on
 end
