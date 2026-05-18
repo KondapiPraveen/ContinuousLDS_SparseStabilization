@@ -15,6 +15,8 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
     p=size(C,1); matI = eye(2*n); %matW = [eye(n); -eye(n)];
     fig1 = figure; fig2 = figure;
     Markers = {'s','d','o','+','x','*','^','v'}; % For plotting
+    alpha = zeros(lenS,1); beta = zeros(lenS,1);
+    kappa = zeros(lenS,1);
     
     for i=1:lenS
         s = S(i); % sparsity
@@ -26,6 +28,7 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
         % Initialization
         L = ceil(meff/s); % # Subsystems
         NumPeriods = ceil(tmax/rho); % Number of Periods
+        Al = zeros(n,n,L);
         Atl = zeros(2*n,2*n,L); % store transfer matrix of dynamics of [x;e]
         InvAtl = zeros(2*n,2*n,L); % Store inverse of InvAtl
         isSingular = 0; % Check for Atl is invertible
@@ -39,6 +42,7 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
         
         for l=1:L
             Beff = B*Kl(:,:,l);
+            Al(:,:,l) = A+Beff;
             % Transfer matrix of the dynamics for [x;e]
             Atl(:,:,l) = [A+Beff, Beff; zeros(n,n), A + F*C];
             if rank(Atl(:,:,l))<2*n
@@ -48,7 +52,10 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
             % State Transition for each period to compute the next state
             Phi = EpAtl(:,:,l)*Phi;
         end
-        
+
+        % Compute parameters of the Upper Bound 
+        [alpha(i),beta(i),kappa(i)] = ComputePhiNorm(Al,OptCvx,rho);
+
         % Compute the state at the end of each period
         for k=1:NumPeriods
             x_curr = Phi*x_curr;
@@ -92,11 +99,22 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
         semilogy(time*rho,xnNorm2,'DisplayName',str,'Marker',Markers(i),'MarkerIndices',MarkerInd,'MarkerSize',10,'LineWidth',2.5);
         hold on
     end
+    % Calculate the upper bound
+    %{
+    alpha1 = min(alpha); beta1 = max(beta); kappa1 = max(kappa);
+    % Upper bound for noiseless case
+    tx = linspace(0,tmax,20); UppBnd1 = beta1*(kappa1^4)*exp(-alpha1*tx)*(norm(x0)^2);
+    %}
     figure(fig1);
+    %semilogy(tx,UppBnd1,'k--o','DisplayName',"Upper Bound",'LineWidth',2.5); grid on;
     legend('NumColumns',2,'Interpreter','latex','FontSize',16); 
     xlabel('time (s)','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
     title('Noiseless Dynamic Feedback')
+    % Upper Bound for bounded noise
+    %NoiseBnd = 2*b*n + norm(F)*b*p; % Upper Bound for NoiseNow
+    %UppBnd2 = (sqrt(beta1)*(kappa1^2)*exp(-alpha1*tx/2) + 2*NoiseBnd*sqrt(beta1)*(kappa1^2)*(1-exp(-alpha1*tx/2))/alpha1).^2;
     figure(fig2)
+    %semilogy(tx,UppBnd2,'k--o','DisplayName',"Upper Bound",'LineWidth',2.5); grid on;
     legend('NumColumns',2,'Interpreter','latex','FontSize',16);
     xlabel('time (s)','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
     title('Robust Dynamic Feedback')

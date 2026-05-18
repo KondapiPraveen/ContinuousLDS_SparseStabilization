@@ -61,7 +61,7 @@ function CtrlEnergyBound(K,K_part,S)
     for i=1:4
         plot(S,EngBnd(i,:),'DisplayName',Labels(i),'Marker',Markers(i),'MarkerSize',10,'LineWidth',2.5); hold on;
     end
-    str = "Upper bound for $\bf{\alpha}^*, \mathcal{S}^*$";
+    str = "Upper bound for $\bf{\alpha}^*, \mathcal{S}^*$"; grid on;
     plot(S,UppBnd,'ko-.','MarkerSize',10,'LineWidth',2.5,DisplayName=str); hold off
     legend('Interpreter','latex','NumColumns',2,'FontSize',16);
     xlabel("Sparsity ($s$)",'Interpreter','latex','FontSize',16)

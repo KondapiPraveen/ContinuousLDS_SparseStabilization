@@ -69,7 +69,7 @@ K_part_eff = K_part(1:meff);
 % Initialization
 tic;
 tmax = 10; % 10sec of simulation time
-S = 2:m/5:4*m/5;
+S = union(1,2:m/5:7);
 x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
 c4 = eigs(Q0,1,'smallestabs');
 assert(c4 > 0,'System is not stabilizable via switching') % Otherwise system is not stabilizable via switching
@@ -87,7 +87,7 @@ CtrlEnergyBound(K,K_part_eff,S);
 toc;
 %% Periodic Switching for Dynamic w/0 and w/ Bounded Noise
 tic;
-S = 2:m/5:4*m/5;
+S = union(1,2:m/5:4*m/5);
 b = 1/n; % Bound on each noise entry
 x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
 tmax = 20; % 500 sec simulation
@@ -96,7 +96,7 @@ rhoSDynamic = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax);
 toc;
 %% Periodic Switching for SOF w/0, w/ Bounded Noise
 tic;
-S = 2:m/5:4*m/5; % Sparsity levels
+S = union(1,2:m/5:4*m/5); % Sparsity levels
 x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
 b = 1/n; % Bound on each noise entry
 % Compute the SOF L
@@ -113,11 +113,13 @@ rhoSSOF = PeriodicSwitchingSOF(A,B,C,L,L_part,x0,S,b,tmax);
 toc;
 %% Self Triggered Stabilization with State Feedback
 tic;
-S = 2:m/5:4*m/5; % Sparsity levels
+S = union(1,2:m/5:4*m/5); % Sparsity levels
 %S = m;
 beta = 0.5; % Decay factor such that inter-event time > 0
 tminSST = ComputeSTCLowerBnd(A,B,K,P,K_part,Q0,S,beta);
-% Simulation
+tic;
+%% Simulation
+tic;
 x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
 tmax = 10; % 10sec of simulation time
 rmax = 10;
@@ -126,7 +128,7 @@ toc;
 %% Event Triggered Stabiliztation with Output Feedback
 tic;
 %S = ceil(2:m/8:m/2); % Sparsity levels
-S = 2:m/5:4*m/5;
+S = union(1,2:m/5:4*m/5);
 tmax = 75; % 10sec of simulation time
 beta = [0.5,0.5]; % beta_1, beta_2
 x0 = 1*ones(n,1)/sqrt(n); % Initial state with l_2^2 2

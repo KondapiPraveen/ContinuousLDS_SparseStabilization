@@ -21,10 +21,11 @@ Inputs:
 
 function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta,tmax)
     % Precomputation
-    Ceff = F*C; ACeff = A+Ceff; xn = norm(x0);
+    Ceff = F*C; ACeff = A+Ceff; xn = norm(x0); n = size(A,1);
     Q2 = (ACeff.')*P2 + P2*ACeff; Q = ((A+B*K).')*P + P*(A+B*K);
     Q3 = [beta(1)*Q P*Ceff; (P*Ceff).' Q2]; nQ3 = eigs(Q3,1,'largestabs');
     nQ = eigs(Q,1,'largestabs'); P1max = norm(P1); P1min = eigs(P1,1,'smallestabs'); P1maxmin = sqrt(P1max/P1min);
+    matI = eye(2*n); tx = linspace(0,tmax,20);
     %Del = 1e-3;
 
     % Initialization
@@ -35,9 +36,15 @@ function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta
     Aext = [A zeros(n) Ceff; -A zeros(n) -Ceff; zeros(n) zeros(n) ACeff];
 
 
-    fig1 = figure; fig2 = figure;
+    fig1 = figure; %fig2 = figure;
     Markers = {'s','d','o','+','x','*','^','v'}; % For plotting
     h1 = @(t) P1maxmin*xn*exp(-t/(2*P1max));
+    
+    c10 = P3max*P1maxmin; % Divide by P3min for ||Psi(t)||^2
+    c9 = (1-beta(2))*nQ3/P3max;
+    c11 = max(c9,-1/P1max);
+    g1 = @(t) 2*c10*xn^2*exp(c11*t);
+    UppBnd = max(P3max*h1(tx).^2,g1(tx)); % Remove P3max for ||Psi(t)||^2
 
     for i=1:lenS
         s = S(i); L = ceil(meff/s); % Spasity and the # Subsystems
@@ -84,7 +91,7 @@ function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta
 
         MaxSwitches = ceil(tmax/LwrBnd);
         xNorm2 = zeros(MaxSwitches+2,1); %xNorm2(1) = 0; 
-        xNorm2(1) = [zeros(n,1); -x0]'*P3*[zeros(n,1); -x0];
+        xNorm2(1) = [zeros(n,1); -x0]'*P3*[zeros(n,1); -x0]; % change matI to P3 to plot V(t)
         Enorm2 = zeros(MaxSwitches+2,1); Enorm2(1) = xn;
         time = zeros(MaxSwitches+2,1);
         ExpAext = expm(Aext*LwrBnd);
@@ -121,7 +128,7 @@ function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta
                 %x_curr = x_hat;
                 count = count + 1;
                 %xNorm2(count) = norm(x_curr);
-                xNorm2(count) = x_curr'*P3*x_curr;
+                xNorm2(count) = x_curr'*P3*x_curr; % change matI to P3 to plot V(t)
                 Enorm2(count) = norm(x_ext(2*n+1:3*n));
                 time(count) = t + LwrBnd;
             end
@@ -155,7 +162,7 @@ function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta
                 count = count + 1;
                 %xNorm2(count) = norm(x_curr);
                 Enorm2(count) = norm(x_ext(2*n+1:3*n));
-                xNorm2(count) = x_curr'*P3*x_curr;
+                xNorm2(count) = x_curr'*P3*x_curr; % change matI to P3 to plot V(t)
                 time(count) = t + LwrBnd;
             end
             % Update time
@@ -170,16 +177,21 @@ function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta
         MarkerInd = floor(linspace(1,count,10));
         semilogy(time(1:count),xNorm2(1:count),'DisplayName',str,'Marker',Markers(i),'MarkerIndices',MarkerInd,'MarkerSize',10,'LineWidth',2.5);
         hold on;
-
+        
+        %{
+        Plot for debugging
         figure(fig2)
         Enorm2 = Enorm2.^2;
         semilogy(time(1:count),Enorm2(1:count),'DisplayName','Error','LineWidth',2.5); hold on
         semilogy(time(1:count),h1(time(1:count)).^2,'DisplayName','h(t)','LineWidth',2.5); hold off
-        legend('NumColumns',2,'Interpreter','latex','FontSize',16); 
+        legend('NumColumns',2,'Interpreter','latex','FontSize',16);
+        %}
     end
     figure(fig1)
+    semilogy(tx,UppBnd,'k--o','DisplayName',"Upper Bound",'MarkerSize',10,'LineWidth',2.5); grid on; hold off
     legend('NumColumns',2,'Interpreter','latex','FontSize',16); 
     xlabel('time (s)','Interpreter','latex','FontSize',16); %ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
+    %ylabel('$\Vert \psi(t) \Vert^2$','Interpreter','latex','FontSize',16);
     ylabel('$V(t)$','Interpreter','latex','FontSize',16);
     title('Noiseless Dynamic Feedback')
 end

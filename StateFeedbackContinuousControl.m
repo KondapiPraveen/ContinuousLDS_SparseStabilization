@@ -23,13 +23,15 @@ Outputs:
     Table 1: Lower min inter event time for various s
 %}
 
-function tmin = StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
+function [tmin,Kl,ul,tl,xl,cntr] = StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
     % Initialization
     Q = ((A+B*K).')*P + P*(A+B*K); c4 = eigs(-Q,1,'smallestabs');
     lenS = numel(S); n = size(A,1); m = size(B,2); meff = numel(K_part);
-    tmin = zeros(lenS,1);
+    tmin = zeros(lenS,1); matI = eye(n);
     Al = cell(lenS,1); Ql = cell(lenS,1); tQl = cell(lenS,1); %tQl2 = cell(lenS,1);
-    xl = cell(lenS,1); tl = cell(lenS,1);
+    xl = cell(lenS,1); Kl = cell(lenS,1); tl = cell(lenS,1);
+    tx = linspace(0,tmax,20); c3 = norm(P);
+    UppBnd = x0'*P*x0*exp(-gamma*tx/c3);
     for i=1:lenS
         s = S(i); L = ceil(meff/s);
         Al{i} = zeros(n,n,L); % A_l : Closed loop dynamics of each subsystem
@@ -59,6 +61,7 @@ function tmin = StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
             %tol = max(abs(K_eff),[],"all");
             %K_eff(abs(K_eff) < tol*1e-3) = 0;
             K_eff = (CONST/norm(K_eff,'fro'))*K_eff;
+            Kl{i}(:,:,l) = K_eff;
             Al{i}(:,:,l) = A + B*K_eff;
             Ql{i}(:,:,l) = (Al{i}(:,:,l).')*P + P*Al{i}(:,:,l);
             tQl{i}(:,:,l) = (Al{i}(:,:,l).')*(Ql{i}(:,:,l)+gamma*eye(n)) + (Ql{i}(:,:,l)+gamma*eye(n))*(Al{i}(:,:,l).');
@@ -80,13 +83,15 @@ function tmin = StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
         tmin(i) = lwrBnd; % Save the lower bound for TABLE
         maxEvents = ceil(tmax/lwrBnd)+1; % Max number of events for a given s
         xl{i} = zeros(maxEvents,1); tl{i} = zeros(maxEvents,1);
+        ul = zeros(maxEvents,1);
         for l = 1:L
             Adelta(:,:,l) = expm(Al{i}(:,:,l)*lwrBnd);
         end
 
         % Switching Stabilization
         t = 0; x_curr = x0; cntr = 1; % Counter for storing x(t), t
-        xl{i}(cntr) = (x_curr.')*P*x_curr; tl{i}(cntr) = t; cntr = cntr + 1;
+        xl{i}(cntr) = (x_curr.')*P*x_curr; % Change to P for V(x)
+        tl{i}(cntr) = t; cntr = cntr + 1;
         while t <= tmax
             % Step 1: Find the subsystem
             l_curr = 1; l_curr_cost = (x_curr.')*Ql{i}(:,:,1)*x_curr;
@@ -97,6 +102,9 @@ function tmin = StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
                     l_curr_cost = l_cost;
                 end
             end
+
+            % Compute the input energy
+            ul(cntr-1) = norm(Kl{i}(:,:,l_curr)*x_curr)^2;
 
             % Step 2: Find the next swtiching instant t_{k+1}
             t_next = t + lwrBnd;
@@ -139,15 +147,17 @@ function tmin = StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
             %}
             assert(t_next > t, 't_next should be greater than t');
             
-            % Step 3: Compute the state at t_{k+1} and add t, x_curr
+            % Step 3: Compute the state at t_{k+1} and update t, x_curr
             x_curr = expm(Al{i}(:,:,l_curr)*(t_next-t))*x_curr;
             t = t_next;
-            xl{i}(cntr) = (x_curr.')*P*x_curr; tl{i}(cntr) = t; cntr = cntr + 1;
+            xl{i}(cntr) = (x_curr.')*P*x_curr; % Change to P for V(x)
+            tl{i}(cntr) = t; cntr = cntr + 1;
         end
         % Plotting : |x(t)| vs t for various 's'
         semilogy(tl{i}(1:cntr-1),xl{i}(1:cntr-1),'LineWidth',2.5,'Marker',Markers{i},'MarkerSize',10);
         hold on;
     end
+    semilogy(tx,UppBnd,'k--o','LineWidth',2.5,'MarkerSize',10,'MarkerIndices',1:2:20); hold on
     xlabel('$time (t)$','Interpreter','latex','FontSize',16); ylabel('$V(t)$','Interpreter','latex','FontSize',16);
-    legend(strcat('$s = $',num2str(S.')),'interpreter','latex','FontSize',16,'NumColumns',2); grid on;
+    legend([strcat('$s = $',num2str(S.'));"Upper Bound"],'interpreter','latex','FontSize',16,'NumColumns',2); grid on;
 end

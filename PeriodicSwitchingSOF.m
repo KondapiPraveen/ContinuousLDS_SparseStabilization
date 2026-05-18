@@ -26,7 +26,7 @@ function rhoS = PeriodicSwitchingSOF(A,B,C,F,K_part,x0,S,b,tmax)
         s = S(i); % sparsity
         
         % Compute rho: periodic switching time
-        rho=3; rho = ComputeRho(A,B,K,K_part,s);
+        rho = 1; rho = ComputeRho(A,B,K,K_part,s);
         rhoS(i) = rho;
 
         % Initialization
