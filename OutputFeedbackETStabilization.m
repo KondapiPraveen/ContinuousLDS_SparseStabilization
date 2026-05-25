@@ -44,7 +44,7 @@ function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta
     c9 = (1-beta(2))*nQ3/P3max;
     c11 = max(c9,-1/P1max);
     g1 = @(t) 2*c10*xn^2*exp(c11*t);
-    UppBnd = max(P3max*h1(tx).^2,g1(tx)); % Remove P3max for ||Psi(t)||^2
+    UppBnd = max(2*P3max*h1(tx).^2,g1(tx)); % Remove P3max for ||Psi(t)||^2
 
     for i=1:lenS
         s = S(i); L = ceil(meff/s); % Spasity and the # Subsystems

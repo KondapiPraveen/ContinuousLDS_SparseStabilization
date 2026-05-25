@@ -5,7 +5,7 @@
 % In this script F is for Luenberger Observer Matrix
 % In simulation under SOF, F is used for SOF matrix in the function defn 
 
-close all; clear; clc;
+close all; clear; clc; rng(0);
 % N denotes number of masses in the mass-spring system
 N = 10; c = zeros(N,1); n = 2*N;
 % Entries in the main, sub/super diagonal in symmetric toeplitz matrix
@@ -21,6 +21,7 @@ A(N+1:n,1:N) = T;
 B = zeros(n,N); % Input matrix
 % Effective Input Matrix
 %B_eff = eye(N);
+%B_eff = diag((1 + 4*rand(N,1))); % Unif(0.75,1.25)
 B_eff = diag(0.5*(1.5 + rand(N,1))); % Unif(0.75,1.25)
 B(N+1:n,:) = B_eff; m = N;
 
@@ -67,10 +68,11 @@ meff = m - sum(K_row_l2 == 0); % number of all zero rows in K
 K_part_eff = K_part(1:meff);
 %% State Feedback Continuous Control
 % Initialization
-tic;
+tic; rng(0)
 tmax = 10; % 10sec of simulation time
 S = union(1,2:m/5:7);
-x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
+%x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
+x0 = randn(n,1); x0 = x0/norm(x0);
 c4 = eigs(Q0,1,'smallestabs');
 assert(c4 > 0,'System is not stabilizable via switching') % Otherwise system is not stabilizable via switching
 gamma = c4/2; % gamma < c4
@@ -86,18 +88,20 @@ S = 1:1:m; % Sparsity levels
 CtrlEnergyBound(K,K_part_eff,S);
 toc;
 %% Periodic Switching for Dynamic w/0 and w/ Bounded Noise
-tic;
+tic; rng(0)
 S = union(1,2:m/5:4*m/5);
 b = 1/n; % Bound on each noise entry
-x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
+%x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
+x0 = randn(n,1); x0 = x0/norm(x0);
 tmax = 20; % 500 sec simulation
 % Comment to skip the simulation
 rhoSDynamic = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax);
 toc;
 %% Periodic Switching for SOF w/0, w/ Bounded Noise
-tic;
+tic; rng(0)
 S = union(1,2:m/5:4*m/5); % Sparsity levels
-x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
+%x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
+x0 = randn(n,1); x0 = x0/norm(x0);
 b = 1/n; % Bound on each noise entry
 % Compute the SOF L
 P1 = P1/2; maxItr = 100; thrsh = 0.1;
@@ -108,7 +112,7 @@ Keff = L*C;
 L_row_l2 = vecnorm(Keff,2,2).^2; % Compute l2 norm of each row of K
 [~,L_part] = sort(L_row_l2,'descend');
 % Comment to skip this simulation
-tmax = 30; % 30sec of simulation time
+tmax = 40; % 30sec of simulation time
 rhoSSOF = PeriodicSwitchingSOF(A,B,C,L,L_part,x0,S,b,tmax);
 toc;
 %% Self Triggered Stabilization with State Feedback
@@ -117,24 +121,27 @@ S = union(1,2:m/5:4*m/5); % Sparsity levels
 %S = m;
 beta = 0.5; % Decay factor such that inter-event time > 0
 tminSST = ComputeSTCLowerBnd(A,B,K,P,K_part,Q0,S,beta);
+toc;
+%% Simulation
 tic;
-% Simulation
-tic;
-x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
+%x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
+rng(0);
+x0 = randn(n,1); x0 = x0/norm(x0);
 tmax = 10; % 10sec of simulation time
 rmax = 10;
 STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax);
 toc;
 %% Event Triggered Stabiliztation with Output Feedback
-tic;
+tic; rng(0);
 %S = ceil(2:m/8:m/2); % Sparsity levels
 S = union(1,2:m/5:4*m/5);
 tmax = 75; % 10sec of simulation time
-beta = [0.5,0.5]; % beta_1, beta_2
-x0 = 1*ones(n,1)/sqrt(n); % Initial state with l_2^2 2
+beta1 = [0.5,0.5]; % beta_1, beta_2
+%x0 = 1*ones(n,1)/sqrt(n); % Initial state with l_2^2 2
+x0 = randn(n,1); x0 = x0/norm(x0);
 % Compute Q2
 Peff = P*F*C;
-Q2 = 1*eigs(-(1/beta(1))*(Peff')*(Q0\Peff),1,'largestabs')*eye(n);
+Q2 = 1*eigs(-(1/beta1(1))*(Peff')*(Q0\Peff),1,'largestabs')*eye(n);
 P2 = lyap(A1',-Q2);
-tminSET = OutputFeedbackETStabilization(A,B,C,K,K_part,F,PO,P2,P,x0,S,beta,tmax);
+tminSET = OutputFeedbackETStabilization(A,B,C,K,K_part,F,PO,P2,P,x0,S,beta1,tmax);
 toc;

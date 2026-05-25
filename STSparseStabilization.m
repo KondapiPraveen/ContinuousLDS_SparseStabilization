@@ -33,6 +33,7 @@ function STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax)
         ExpFl = zeros(2*n,2*n,L); % Matrix exponential of Fl's
         Ql = zeros(n,n,L); %  Matrix in the derivative of V(t)
         xNorm2 = zeros(MaxSwitches+1,1); xNorm2(1) = x0'*P*x0;
+        %sNorm2 = zeros(MaxSwitches+1,1); sNorm2(1) = x0'*P*x0;
         time = zeros(MaxSwitches+1,1);
 
         
@@ -48,7 +49,7 @@ function STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax)
             Ql(:,:,l) = Aeff'*P + P*Aeff;
             Gl = [P_2*A*IP_2 + IP_2*A'*P_2 P_2*Beff*IP_2; IP_2*Beff'*P_2 zeros(n)];
             wl = eigs(Gl,1); mul =  eigs(Gl,1,'smallestreal');
-            wmuDel = exp(wl*mul*Del);
+            wmuDel = exp(wl*mul*Del/(mul-wl));
             g_del = exp(lam_max*mul*Del/(mul-wl))*(wmuDel+exp(lam_max*(rmax-1)*Del)*(wmuDel-1));
             % we may have to multiply exp(lam_max*Del) to g_del
             if g_del > Cst
@@ -90,6 +91,7 @@ function STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax)
             end
             x_ext = [x_ext(1:n); zeroVec]; count = count + 1;
             xNorm2(count) = x_ext(1:n)'*P*x_ext(1:n);% norm(x_ext(1:n));
+            %sNorm2(count) = s_ext(1:n)'*P*s_ext(1:n);
             time(count) = t;
         end
 

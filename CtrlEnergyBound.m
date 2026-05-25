@@ -66,4 +66,11 @@ function CtrlEnergyBound(K,K_part,S)
     legend('Interpreter','latex','NumColumns',2,'FontSize',16);
     xlabel("Sparsity ($s$)",'Interpreter','latex','FontSize',16)
     ylabel("Max Sq. Frob. Norm $\max_l \Vert \bf{K}_l \Vert_F^2$",'Interpreter','latex','FontSize',15);
+
+    % Create a zoom
+    ax_inset = axes('Position',[0.45,0.4,0.4,0.3]);
+    plot(ax_inset,S,EngBnd(1,:),'Marker',Markers(1),'MarkerSize',10,'LineWidth',2.5); hold on;
+    plot(ax_inset,S,EngBnd(2,:),'Marker',Markers(2),'MarkerSize',10,'LineWidth',2.5);
+    xlim(ax_inset,[6.8,8.2]);
+    ylim(ax_inset,[25.5,29.5]);
 end

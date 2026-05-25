@@ -56,6 +56,7 @@ function rhoS = PeriodicSwitchingSOF(A,B,C,F,K_part,x0,S,b,tmax)
             % State Transition for each period to compute the next state
             Phi = EpAtl(:,:,l)*Phi;
         end
+        %logm(Phi);
 
         % Compute the state at the end of each period
         x_curr = x0;

@@ -52,6 +52,7 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
             % State Transition for each period to compute the next state
             Phi = EpAtl(:,:,l)*Phi;
         end
+        %logm(Phi);
 
         % Compute parameters of the Upper Bound 
         [alpha(i),beta(i),kappa(i)] = ComputePhiNorm(Al,OptCvx,rho);
