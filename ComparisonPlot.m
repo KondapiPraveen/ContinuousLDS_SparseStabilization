@@ -109,6 +109,7 @@ assert(c4 > 0,'System is not stabilizable via switching') % Otherwise system is 
 gamma = c4/2; % gamma < c4
 assert(c4 > gamma,'Non Zeno behavior is not guaranteed'); % To avoid Zeno behavior
 % Comment to skip this simulation
+% Note: Below function plots lyapunov function : V(x) = x.'*P*x, instead change to P to I 
 [tminS,Koptl,uoptl,toptl,xoptl,counter] = StateFeedbackContinuousControl(A,B,K,P0,x0,K_part_eff,S,gamma,tmax);
 toc;
 %% Plotting
