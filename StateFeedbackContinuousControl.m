@@ -19,15 +19,26 @@ Inputs:
 
 %{
 Outputs:
+    tmin : Vector of positive lower bound corresponding to various s
+    Kl   : Sparse feedback matrices
+    ul   : control energy at each sampling time
+    tl   : Sampling time instants for each s - it has a cell of size |S|x1
+    xl   : Norm of the state vector at each sampling times
+    cntr : # switching time instants
+    Emptmin : Vector of empirical minimum of the inter-switching times
+%}
+
+%{
+Visual Outputs:
     Plot 1: |x(t)| vs t for various 's'
     Table 1: Lower min inter event time for various s
 %}
 
-function [tmin,Kl,ul,tl,xl,cntr] = StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
+function [tmin,Kl,ul,tl,xl,cntr,Emptmin] = StateFeedbackContinuousControl(A,B,K,P,x0,K_part,S,gamma,tmax)
     % Initialization
     Q = ((A+B*K).')*P + P*(A+B*K); c4 = eigs(-Q,1,'smallestabs');
     lenS = numel(S); n = size(A,1); m = size(B,2); meff = numel(K_part);
-    tmin = zeros(lenS,1); matI = eye(n);
+    tmin = zeros(lenS,1); Emptmin = zeros(lenS,1); matI = eye(n);
     Al = cell(lenS,1); Ql = cell(lenS,1); tQl = cell(lenS,1); %tQl2 = cell(lenS,1);
     xl = cell(lenS,1); Kl = cell(lenS,1); tl = cell(lenS,1);
     tx = linspace(0,tmax,20); c3 = norm(P);
@@ -153,6 +164,8 @@ function [tmin,Kl,ul,tl,xl,cntr] = StateFeedbackContinuousControl(A,B,K,P,x0,K_p
             xl{i}(cntr) = (x_curr.')*P*x_curr; % Change to P for V(x)
             tl{i}(cntr) = t; cntr = cntr + 1;
         end
+        Emptdiff = tl{1}(2:cntr-1)-tl{1}(1:cntr-2);
+        Emptmin(i) = min(Emptdiff);
         % Plotting : |x(t)| vs t for various 's'
         semilogy(tl{i}(1:cntr-1),xl{i}(1:cntr-1),'LineWidth',2.5,'Marker',Markers{i},'MarkerSize',10);
         hold on;

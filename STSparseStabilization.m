@@ -11,7 +11,7 @@ Inputs
     Max. simulation time: tmax
     max time of non-interrupted control: rmax
 %}
-function STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax)
+function Emptmin = STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax)
     lenS = numel(S); meff = numel(K_part); n = size(A,1);
     Fs = zeros(2*n,2*n); Fs(1:n,1:n) = beta*(A+B*K); % Auxilary system
     figure(); Markers = {'s','d','o','+','x','*','^','v'}; % For plotting
@@ -20,6 +20,7 @@ function STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax)
     Qtil = -beta*IP_2*Q*IP_2; Cst = 0;
     lam_min = eigs(Qtil,1,'smallestabs'); lam_max = norm(Qtil);
     tx = linspace(0,tmax,20); UppBnd = x0'*P*x0*exp(-lam_min*tx);
+    Emptmin = zeros(lenS,1);
 
     for i=1:lenS
         s = S(i); % Sparsity
@@ -94,7 +95,8 @@ function STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax)
             %sNorm2(count) = s_ext(1:n)'*P*s_ext(1:n);
             time(count) = t;
         end
-
+        Emptdiff = time(2:count-1)-time(1:count-2);
+        Emptmin(i) = mean(Emptdiff);
         %xNorm2 = xNorm2.^2; % Get the sq. l2 norm of the state
         % Plotting
         str = sprintf('$s = %d$',s);

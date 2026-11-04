@@ -78,7 +78,7 @@ assert(c4 > 0,'System is not stabilizable via switching') % Otherwise system is 
 gamma = c4/2; % gamma < c4
 assert(c4 > gamma,'Non Zeno behavior is not guaranteed'); % To avoid Zeno behavior
 % Comment to skip this simulation
-tminS = StateFeedbackContinuousControl(A,B,K,P,x0,K_part_eff,S,gamma,tmax);
+[tminS,~,~,~,~,~,EmptminS] = StateFeedbackContinuousControl(A,B,K,P,x0,K_part_eff,S,gamma,tmax);
 toc;
 %% Feedback Gain under different partitions and convex combinations
 tic;
@@ -89,17 +89,19 @@ CtrlEnergyBound(K,K_part_eff,S);
 toc;
 %% Periodic Switching for Dynamic w/0 and w/ Bounded Noise
 tic; rng(0)
-S = union(1,2:m/5:4*m/5);
+%S = union(1,2:m/5:4*m/5);
+S = [1,2,6];
 b = 1/n; % Bound on each noise entry
 %x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
 x0 = randn(n,1); x0 = x0/norm(x0);
-tmax = 20; % 500 sec simulation
+tmax = 40; % 500 sec simulation
 % Comment to skip the simulation
-rhoSDynamic = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax);
+[rhoSDynamic,fig1,fig2] = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax);
 toc;
-%% Periodic Switching for SOF w/0, w/ Bounded Noise
+% Periodic Switching for SOF w/0, w/ Bounded Noise
 tic; rng(0)
-S = union(1,2:m/5:4*m/5); % Sparsity levels
+%S = union(1,2:m/5:4*m/5); % Sparsity levels
+S = [1,2,6];
 %x0 = ones(n,1)/sqrt(n); % Initial state with l_2^2 2
 x0 = randn(n,1); x0 = x0/norm(x0);
 b = 1/n; % Bound on each noise entry
@@ -112,8 +114,8 @@ Keff = L*C;
 L_row_l2 = vecnorm(Keff,2,2).^2; % Compute l2 norm of each row of K
 [~,L_part] = sort(L_row_l2,'descend');
 % Comment to skip this simulation
-tmax = 40; % 30sec of simulation time
-rhoSSOF = PeriodicSwitchingSOF(A,B,C,L,L_part,x0,S,b,tmax);
+tmax = 40; % 80sec of simulation time
+rhoSSOF = PeriodicSwitchingSOF(A,B,C,L,L_part,x0,S,b,tmax,fig1,fig2);
 toc;
 %% Self Triggered Stabilization with State Feedback
 tic;
@@ -129,7 +131,7 @@ rng(0);
 x0 = randn(n,1); x0 = x0/norm(x0);
 tmax = 10; % 10sec of simulation time
 rmax = 10;
-STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax);
+EmptminSST = STSparseStabilization(A,B,K,K_part,P,x0,S,tminSST,beta,tmax,rmax);
 toc;
 %% Event Triggered Stabiliztation with Output Feedback
 tic; rng(0);
@@ -143,5 +145,5 @@ x0 = randn(n,1); x0 = x0/norm(x0);
 Peff = P*F*C;
 Q2 = 1*eigs(-(1/beta1(1))*(Peff')*(Q0\Peff),1,'largestabs')*eye(n);
 P2 = lyap(A1',-Q2);
-tminSET = OutputFeedbackETStabilization(A,B,C,K,K_part,F,PO,P2,P,x0,S,beta1,tmax);
+[tminSET, EmptminSET] = OutputFeedbackETStabilization(A,B,C,K,K_part,F,PO,P2,P,x0,S,beta1,tmax);
 toc;

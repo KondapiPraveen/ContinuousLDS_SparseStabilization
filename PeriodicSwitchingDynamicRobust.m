@@ -10,19 +10,22 @@ Inputs:
     Max Time of Simulation : tmax
 %}
 % Output: rhoS: Switching Period for different sparsity s in S
-function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
+function [rhoS,fig1,fig2] = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
     lenS = numel(S); meff = numel(K_part); n = size(A,1); rhoS = zeros(lenS,1);
     p=size(C,1); matI = eye(2*n); %matW = [eye(n); -eye(n)];
-    fig1 = figure; fig2 = figure;
     Markers = {'s','d','o','+','x','*','^','v'}; % For plotting
     alpha = zeros(lenS,1); beta = zeros(lenS,1);
     kappa = zeros(lenS,1);
+    DefaultColors = [0 0.4470 0.7410; 0.8500 0.3250 0.0980; 0.9290 0.6940 0.1250];
+    Colors = repmat(DefaultColors,2,1);
+    fig1 = figure; colororder(Colors)
+    fig2 = figure; colororder(Colors)
     
     for i=1:lenS
         s = S(i); % sparsity
         
         % Compute rho: periodic switching time
-        rho = 1; rho = ComputeRho(A,B,K,K_part,s);
+        rho = 0.75; %rho = ComputeRho(A,B,K,K_part,s);
         rhoS(i) = rho;
 
         % Initialization
@@ -66,8 +69,9 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
         xNorm2 = xNorm2.^2; % Get the sq. l2 norm of the state
         % Plotting
         figure(fig1)
-        str = sprintf('$s = %d$',s);
-        semilogy(time*rho,xNorm2,'DisplayName',str,'Marker',Markers(i),'MarkerIndices',MarkerInd,'MarkerSize',10,'LineWidth',2.5);
+        %str = sprintf('$s = %d$',s);
+        %semilogy(time*rho,xNorm2,'DisplayName',str,'Marker',Markers(i),'MarkerIndices',MarkerInd,'MarkerSize',10,'LineWidth',2.5);
+        semilogy(time*rho,xNorm2,'Marker',Markers(i),'MarkerIndices',MarkerInd,'MarkerSize',10,'LineWidth',2.5);
         hold on
         
         if isSingular == 1
@@ -96,8 +100,9 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
         xnNorm2 = xnNorm2.^2; % Get the sq. l2 norm of the state
         % Plotting
         figure(fig2)
-        str = sprintf('$s = %d$',s);
-        semilogy(time*rho,xnNorm2,'DisplayName',str,'Marker',Markers(i),'MarkerIndices',MarkerInd,'MarkerSize',10,'LineWidth',2.5);
+        %str = sprintf('$s = %d$',s);
+        %semilogy(time*rho,xnNorm2,'DisplayName',str,'Marker',Markers(i),'MarkerIndices',MarkerInd,'MarkerSize',10,'LineWidth',2.5);
+        semilogy(time*rho,xnNorm2,'Marker',Markers(i),'MarkerIndices',MarkerInd,'MarkerSize',10,'LineWidth',2.5);
         hold on
     end
     % Calculate the upper bound
@@ -106,12 +111,15 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
     % Upper bound for noiseless case
     tx = linspace(0,tmax,20); UppBnd1 = beta1*(kappa1^4)*exp(-alpha1*tx)*(norm(x0)^2);
     %}
+    %{
     figure(fig1);
     %semilogy(tx,UppBnd1,'k--o','DisplayName',"Upper Bound",'LineWidth',2.5); grid on;
     legend('NumColumns',2,'Interpreter','latex','FontSize',16); 
     xlabel('time $(t)$','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
     title('Noiseless Dynamic Feedback'); grid on
+    %}
     % Upper Bound for bounded noise
+    %{
     %NoiseBnd = 2*b*n + norm(F)*b*p; % Upper Bound for NoiseNow
     %UppBnd2 = (sqrt(beta1)*(kappa1^2)*exp(-alpha1*tx/2) + 2*NoiseBnd*sqrt(beta1)*(kappa1^2)*(1-exp(-alpha1*tx/2))/alpha1).^2;
     figure(fig2)
@@ -119,4 +127,5 @@ function rhoS = PeriodicSwitchingDynamicRobust(A,B,C,K,F,K_part,x0,S,b,tmax)
     legend('NumColumns',2,'Interpreter','latex','FontSize',16);
     xlabel('time $(t)$','Interpreter','latex','FontSize',16); ylabel('$\Vert \textbf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
     title('Robust Dynamic Feedback'); grid on
+    %}
 end

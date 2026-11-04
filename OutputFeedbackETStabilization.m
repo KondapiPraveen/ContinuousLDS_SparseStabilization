@@ -19,7 +19,7 @@ Inputs:
 
 % Output: Lower Bound on Inter-Event Times
 
-function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta,tmax)
+function [tmin, Emptmin] = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta,tmax)
     % Precomputation
     Ceff = F*C; ACeff = A+Ceff; xn = norm(x0); n = size(A,1);
     Q2 = (ACeff.')*P2 + P2*ACeff; Q = ((A+B*K).')*P + P*(A+B*K);
@@ -30,7 +30,7 @@ function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta
 
     % Initialization
     lenS = numel(S); n = size(A,1); meff = numel(K_part); tmin = zeros(lenS,1);
-    P3 = zeros(2*n,2*n);
+    P3 = zeros(2*n,2*n); Emptmin = Inf(lenS,1);
     P3(1:n,1:n) = P; P3(n+1:2*n,n+1:2*n) = P2; S1 = [eye(n) zeros(n)];
     P3min = eigs(P3,1,'smallestabs'); P3max = eigs(P3,1,'largestabs');
     Aext = [A zeros(n) Ceff; -A zeros(n) -Ceff; zeros(n) zeros(n) ACeff];
@@ -166,6 +166,8 @@ function tmin = OutputFeedbackETStabilization(A,B,C,K,K_part,F,P1,P2,P,x0,S,beta
                 time(count) = t + LwrBnd;
             end
             % Update time
+            interTime = time(count)-time(count-1);
+            Emptmin(i) = min(Emptmin(i),interTime);
             t = t + LwrBnd;
             %t = t + Del;
         end

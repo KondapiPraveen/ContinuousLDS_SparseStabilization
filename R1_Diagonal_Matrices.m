@@ -1,4 +1,4 @@
-%% ECC 2024: Stabilization of Diagonal Matrices - Script File
+%% ECC 2026: Stabilization of Diagonal Matrices - Script File
 % Result 1 with diagonal system matrices
 % Continuous feedback with precompuation of next switching time
 %{

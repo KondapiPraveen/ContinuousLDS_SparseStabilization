@@ -3,10 +3,12 @@
 % Choose the # masses
 clear; clc; close all; rng(0);
 tic;
-Nl = 5:5:40; lenN = numel(Nl);
+Nl = 10:10:40; lenN = numel(Nl);
 S = 1; tmax = 10; % Parameters of simulation
 Markers = {'s','d','o','+','x','*','^','v'}; % For plotting
-tminS = zeros(lenN,1); fig1 = figure;
+tminS = zeros(lenN,1); % Store analytical lower bound on swithcing times
+EmptminS = zeros(lenN,1); % Store avg. empirical lower bound
+fig1 = figure;
 
 for l=1:lenN
     N = Nl(l);
@@ -79,6 +81,9 @@ for l=1:lenN
     % Comment to skip this simulation
     x0 = randn(n,1); x0 = x0/norm(x0); % Random vector on unit l1 ball
     [tminS(l),~,~,tl,xl,cntr] = StateFeedbackContinuousControl(A,B,K,P,x0,K_part_eff,S,gamma,tmax); close
+    Emptdiff = tl{1}(2:cntr-1)-tl{1}(1:cntr-2);
+    %EmptminS(l) = sum(Emptdiff)/(cntr-2);
+    EmptminS(l) = min(Emptdiff);
     figure(fig1);
     MarkerInd = 1:10:cntr-1;
     semilogy(tl{1}(1:cntr-1),xl{1}(1:cntr-1),'LineWidth',2.5,'Marker',Markers(l),'MarkerSize',10,'MarkerIndices',MarkerInd); hold on;

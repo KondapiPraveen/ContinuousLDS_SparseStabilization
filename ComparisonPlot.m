@@ -3,10 +3,11 @@
 
 % System Matrices
 clear; clc; close all;
-gamma1 = 1;
+gamma1 = 1; rng(0);
 A = [0,0,0;0,0,0;1,1,gamma1]; B = [1,0;0,1;0,0];
 n = size(A,1); m = size(B,2); L = m;
-x0 = ones(n,1)/sqrt(n); % Initial state vector
+x0 = randn(n,1); x0 = x0/norm(x0);
+%x0 = ones(n,1)/sqrt(0.01); % Initial state vector
 tmax = 20; % 10sec of simulation time
 
 % Feedback matrices
@@ -116,17 +117,17 @@ toc;
 figure
 yyaxis left
 str = "$s = 1$";
-semilogy(toptl{1}(1:counter-1),xoptl{1}(1:counter-1),"DisplayName","Ours",'LineWidth',2.5,'Marker','s','MarkerSize',10);
+semilogy(toptl{1}(1:counter-1),xoptl{1}(1:counter-1),"DisplayName","Ours",'LineWidth',2.5,'Marker','s','MarkerSize',10,'MarkerIndices',1:4:numel(toptl{1}(1:counter-1)));
 xlabel('time $(t)$','Interpreter','latex','FontSize',16); ylabel('$\Vert \bf{x}(t) \Vert^2$','Interpreter','latex','FontSize',16);
 %legend('interpreter','latex','FontSize',16,'NumColumns',2);
 % plot for energy
 yyaxis right
 %figure();
-semilogy(toptl{1}(1:counter-1),uoptl(1:counter-1),"DisplayName","Ours",'LineWidth',2.5,'Marker','d','MarkerSize',10); hold on
+semilogy(toptl{1}(1:counter-1),uoptl(1:counter-1),"DisplayName","Ours",'LineWidth',2.5,'Marker','d','MarkerSize',10,'MarkerIndices',1:4:numel(toptl{1}(1:counter-1))); hold on
 yyaxis left
-semilogy(tl(1:cntr-1),xl(1:cntr-1),'--',"DisplayName","CDC'25",'LineWidth',2.5,'Marker','s','MarkerSize',10);
+semilogy(tl(1:cntr-1),xl(1:cntr-1),'--',"DisplayName","CDC'25",'LineWidth',2.5,'Marker','s','MarkerSize',10,'MarkerIndices',1:10:numel(tl(1:cntr-1)));
 yyaxis right
-semilogy(tl(1:cntr-1),ul(1:cntr-1),'--',"DisplayName","CDC'25",'LineWidth',2.5,'Marker','d','MarkerSize',10);
+semilogy(tl(1:cntr-1),ul(1:cntr-1),'--',"DisplayName","CDC'25",'LineWidth',2.5,'Marker','d','MarkerSize',10,'MarkerIndices',1:10:numel(tl(1:cntr-1)));
 ylabel('$\Vert \bf{u}(t) \Vert^2$','Interpreter','latex','FontSize',16); %xlabel('$time (t)$','Interpreter','latex','FontSize',16);
 legend('interpreter','latex','FontSize',16,'NumColumns',2); grid on;
 %{
